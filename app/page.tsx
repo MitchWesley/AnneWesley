@@ -319,12 +319,12 @@ export default function AnneBirthdayPage() {
         >
           <motion.div
             className="absolute inset-0 rounded-full bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500 p-2"
-            animate={{ rotate: 360 }}
+            
             transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
           >
             <div className="w-full h-full rounded-full overflow-hidden shadow-2xl border-8 border-white bg-white">
               <Image
-                src="/placeholder.svg?height=256&width=256"
+                src="/AnneMitch.png?height=256&width=256"
                 alt="Anne's Birthday Photo"
                 width={256}
                 height={256}
@@ -338,8 +338,8 @@ export default function AnneBirthdayPage() {
               key={i}
               className="absolute text-2xl"
               style={{
-                top: `${20 + Math.sin((i * Math.PI) / 3) * 40}%`,
-                left: `${20 + Math.cos((i * Math.PI) / 3) * 40}%`,
+                top: `${43 + Math.sin((i * Math.PI) / 3) * 50}%`,
+                left: `${43 + Math.cos((i * Math.PI) / 3) * 50}%`,
               }}
               animate={{
                 y: [0, -10, 0],
