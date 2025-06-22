@@ -4,8 +4,10 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Heart, Camera, MessageCircle, Upload, X, Plus, Sparkles, Gift } from "lucide-react"
+import { Heart, Camera, MessageCircle, Upload, X, Plus, Sparkles, Gift, Images } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
+import { generateQRCodeURL } from "@/lib/qr-utils"
 
 interface BirthdayPost {
   id: number
@@ -92,6 +94,8 @@ export default function AnneBirthdayPage() {
   const [selectedImages, setSelectedImages] = useState<File[]>([])
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([])
 
+  const siteURL = "https://annewesley.vercel.app/"
+  const qrCodeURL = generateQRCodeURL(siteURL, 200)
   useEffect(() => {
     fetchPosts()
   }, [])
@@ -356,6 +360,49 @@ export default function AnneBirthdayPage() {
           ))}
         </motion.div>
 
+        {/* QR Code Section */}
+        <motion.div
+          className="mb-8"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.8 }}
+        >
+          <motion.div
+            className="inline-block p-6 bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border-4 border-green-200 relative overflow-hidden"
+            whileHover={{ scale: 1.02 }}
+          >
+            {/* Animated background pattern */}
+            <motion.div
+              className="absolute inset-0 opacity-5"
+              animate={{
+                backgroundPosition: ["0% 0%", "100% 100%"],
+              }}
+              transition={{ duration: 15, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+              style={{
+                backgroundImage:
+                  'url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" fontSize="90">🎈</text></svg>\')',
+                backgroundSize: "30px 30px",
+              }}
+            />
+
+            <div className="relative z-10 text-center">
+              <motion.div
+                animate={{ rotate: [0, 5, -5, 0] }}
+                transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY }}
+              >
+                <Image
+                  src={qrCodeURL || "/placeholder.svg"}
+                  alt="QR Code to Birthday Website"
+                  width={200}
+                  height={200}
+                  className="mx-auto rounded-2xl shadow-lg border-4 border-green-100"
+                />
+              </motion.div>
+              <p className="text-lg font-semibold text-green-700 mt-4 mb-2">📱 Scan to Join the Celebration!</p>
+              <p className="text-sm text-gray-600">Share this QR code so everyone can add their birthday wishes</p>
+            </div>
+          </motion.div>
+        </motion.div>
         {/* Info Message with Enhanced Styling */}
         <motion.div
           className="max-w-2xl mx-auto bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border-4 border-green-200 relative overflow-hidden"
@@ -522,6 +569,31 @@ export default function AnneBirthdayPage() {
           </motion.div>
         )}
       </div>
+
+      {/* Photo Gallery Link */}
+      <motion.div
+        className="fixed bottom-6 right-6 z-30"
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 1.5 }}
+      >
+        <Link href="/photos">
+          <motion.div
+            className="bg-gradient-to-r from-green-500 to-emerald-500 text-white p-4 rounded-full shadow-2xl hover:shadow-green-200 transition-all duration-300 group"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <Images className="w-6 h-6" />
+            <motion.div
+              className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+            >
+              {posts.reduce((total, post) => total + (post.image_urls?.length || 0), 0)}
+            </motion.div>
+          </motion.div>
+        </Link>
+      </motion.div>
 
       {/* Form Modal with Enhanced Styling */}
       <AnimatePresence>
