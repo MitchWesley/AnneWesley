@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Heart, Camera, MessageCircle, Upload, X, Plus, Sparkles, Gift, Images } from "lucide-react"
+import { Heart, Camera, MessageCircle, Upload, X, Plus, Sparkles, Gift, Images, Brain } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { generateQRCodeURL } from "@/lib/qr-utils"
