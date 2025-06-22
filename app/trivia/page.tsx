@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ArrowLeft, Trophy, CheckCircle, XCircle, Send, Brain } from "lucide-react"
+import { ArrowLeft, Trophy, Send, Brain } from "lucide-react"
 import Link from "next/link"
 import { triviaQuestions } from "@/lib/trivia-data"
 
@@ -89,18 +89,15 @@ export default function TriviaPage() {
               </motion.div>
 
               <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-4">
-                Trivia Complete!
+                Thank You!
               </h1>
 
-              <div className="text-6xl font-bold text-green-600 mb-2">{results.score}</div>
-              <div className="text-xl text-gray-600 mb-6">
-                out of {totalPoints} points • {results.score === totalPoints ? "Perfect Score!" : "Great job!"}
-              </div>
+              <div className="text-xl text-gray-600 mb-6">Your trivia answers have been submitted successfully!</div>
 
               <div className="text-lg text-gray-700 mb-6">
-                You got{" "}
-                <span className="font-bold text-green-600">{results.results.filter((r: any) => r.correct).length}</span>{" "}
-                out of <span className="font-bold">{results.totalQuestions}</span> questions correct!
+                Thanks for testing your knowledge about Anne.
+                <br />
+                Results will be revealed at the party! 🎊
               </div>
 
               <Link href="/">
@@ -112,48 +109,6 @@ export default function TriviaPage() {
                   Back to Birthday Celebration
                 </motion.button>
               </Link>
-            </motion.div>
-
-            {/* Results breakdown */}
-            <motion.div
-              className="bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-2xl border-2 border-green-100"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Your Answers</h2>
-              <div className="space-y-3">
-                {results.results.map((result: any, index: number) => {
-                  const question = triviaQuestions.find((q) => q.id === result.questionId)
-                  return (
-                    <div
-                      key={result.questionId}
-                      className={`flex items-center p-3 rounded-xl ${
-                        result.correct ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"
-                      }`}
-                    >
-                      {result.correct ? (
-                        <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                      ) : (
-                        <XCircle className="w-5 h-5 text-red-500 mr-3 flex-shrink-0" />
-                      )}
-                      <div className="text-left">
-                        <div className="font-medium text-gray-800">{question?.question}</div>
-                        <div className="text-sm text-gray-600">
-                          Your answer: <span className="font-medium">{String(result.userAnswer)}</span>
-                          {!result.correct && (
-                            <>
-                              {" • "}
-                              Correct:{" "}
-                              <span className="font-medium text-green-600">{String(result.correctAnswer)}</span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
             </motion.div>
           </motion.div>
         </div>
