@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Trophy, Medal, Award, ArrowLeft, RefreshCw } from "lucide-react"
+import { Trophy, Medal, Award, ArrowLeft, RefreshCw, Bug } from "lucide-react"
 import Link from "next/link"
 
 interface TriviaSubmission {
@@ -17,18 +17,33 @@ export default function TriviaResults() {
   const [submissions, setSubmissions] = useState<TriviaSubmission[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
+  const [debugInfo, setDebugInfo] = useState<any>(null)
 
   const fetchResults = async (silent = false) => {
     if (!silent) setLoading(true)
     if (silent) setRefreshing(true)
 
     try {
-      // Add cache-busting timestamp
+      // Add cache-busting timestamp and random number
       const timestamp = Date.now()
-      const response = await fetch(`/api/trivia/leaderboard?t=${timestamp}`)
+      const random = Math.random()
+      console.log(`Fetching trivia results with timestamp: ${timestamp}`)
+
+      const response = await fetch(`/api/trivia/leaderboard?t=${timestamp}&r=${random}`, {
+        method: "GET",
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      })
+
       if (response.ok) {
         const data = await response.json()
-        setSubmissions(data.submissions)
+        console.log("Received trivia data:", data.submissions?.length, "submissions")
+        setSubmissions(data.submissions || [])
+      } else {
+        console.error("Failed to fetch trivia results:", response.status, response.statusText)
       }
     } catch (error) {
       console.error("Error fetching trivia results:", error)
@@ -38,13 +53,26 @@ export default function TriviaResults() {
     }
   }
 
+  const fetchDebugInfo = async () => {
+    try {
+      const response = await fetch(`/api/debug-trivia?t=${Date.now()}`)
+      if (response.ok) {
+        const data = await response.json()
+        setDebugInfo(data)
+        console.log("Debug info:", data)
+      }
+    } catch (error) {
+      console.error("Error fetching debug info:", error)
+    }
+  }
+
   useEffect(() => {
     fetchResults()
 
-    // Set up polling for real-time updates
+    // Set up more frequent polling for real-time updates
     const interval = setInterval(() => {
       fetchResults(true)
-    }, 30000) // Poll every 30 seconds
+    }, 15000) // Poll every 15 seconds instead of 30
 
     return () => clearInterval(interval)
   }, [])
@@ -130,18 +158,44 @@ export default function TriviaResults() {
               </p>
             </div>
 
-            <motion.button
-              onClick={() => fetchResults(true)}
-              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl flex items-center transition-colors"
-              disabled={refreshing}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <RefreshCw className={`w-5 h-5 mr-2 ${refreshing ? "animate-spin" : ""}`} />
-              {refreshing ? "Refreshing..." : "Refresh"}
-            </motion.button>
+            <div className="flex gap-2">
+              <motion.button
+                onClick={fetchDebugInfo}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl flex items-center transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Bug className="w-5 h-5 mr-2" />
+                Debug
+              </motion.button>
+
+              <motion.button
+                onClick={() => fetchResults(true)}
+                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl flex items-center transition-colors"
+                disabled={refreshing}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <RefreshCw className={`w-5 h-5 mr-2 ${refreshing ? "animate-spin" : ""}`} />
+                {refreshing ? "Refreshing..." : "Refresh"}
+              </motion.button>
+            </div>
           </div>
         </motion.div>
+
+        {/* Debug Info */}
+        {debugInfo && (
+          <motion.div
+            className="max-w-4xl mx-auto mb-8 bg-blue-50 border-2 border-blue-200 rounded-2xl p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <h3 className="font-bold text-blue-800 mb-2">Debug Information:</h3>
+            <p className="text-blue-700">Total in Database: {debugInfo.totalCount}</p>
+            <p className="text-blue-700">Fetched at: {debugInfo.timestamp}</p>
+            <p className="text-blue-700">Showing: {submissions.length} submissions</p>
+          </motion.div>
+        )}
 
         {/* Leaderboard */}
         {submissions.length === 0 ? (
