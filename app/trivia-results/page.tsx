@@ -18,16 +18,14 @@ export default function TriviaResults() {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
 
-  useEffect(() => {
-    fetchResults()
-  }, [])
-
   const fetchResults = async (silent = false) => {
     if (!silent) setLoading(true)
     if (silent) setRefreshing(true)
 
     try {
-      const response = await fetch("/api/trivia/leaderboard")
+      // Add cache-busting timestamp
+      const timestamp = Date.now()
+      const response = await fetch(`/api/trivia/leaderboard?t=${timestamp}`)
       if (response.ok) {
         const data = await response.json()
         setSubmissions(data.submissions)
@@ -39,6 +37,17 @@ export default function TriviaResults() {
       if (silent) setRefreshing(false)
     }
   }
+
+  useEffect(() => {
+    fetchResults()
+
+    // Set up polling for real-time updates
+    const interval = setInterval(() => {
+      fetchResults(true)
+    }, 30000) // Poll every 30 seconds
+
+    return () => clearInterval(interval)
+  }, [])
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
