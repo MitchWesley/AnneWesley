@@ -570,30 +570,41 @@ export default function AnneBirthdayPage() {
         )}
       </div>
 
-      {/* Photo Gallery Link */}
-      <motion.div
-        className="fixed bottom-6 right-6 z-30"
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 1.5 }}
-      >
-        <Link href="/photos">
-          <motion.div
-            className="bg-gradient-to-r from-green-500 to-emerald-500 text-white p-4 rounded-full shadow-2xl hover:shadow-green-200 transition-all duration-300 group"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <Images className="w-6 h-6" />
+      {/* Floating Action Buttons */}
+      <div className="fixed bottom-6 right-6 z-30 flex flex-col gap-4">
+        {/* Photo Gallery Button */}
+        <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.5 }}>
+          <Link href="/photos">
             <motion.div
-              className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+              className="bg-gradient-to-r from-green-500 to-emerald-500 text-white p-4 rounded-full shadow-2xl hover:shadow-green-200 transition-all duration-300 group relative"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
             >
-              {posts.reduce((total, post) => total + (post.image_urls?.length || 0), 0)}
+              <Images className="w-6 h-6" />
+              <motion.div
+                className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold"
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+              >
+                {posts.reduce((total, post) => total + (post.image_urls?.length || 0), 0)}
+              </motion.div>
             </motion.div>
-          </motion.div>
-        </Link>
-      </motion.div>
+          </Link>
+        </motion.div>
+
+        {/* Trivia Button */}
+        <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.7 }}>
+          <Link href="/trivia">
+            <motion.div
+              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full shadow-2xl hover:shadow-purple-200 transition-all duration-300 group"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <Brain className="w-6 h-6" />
+            </motion.div>
+          </Link>
+        </motion.div>
+      </div>
 
       {/* Form Modal with Enhanced Styling */}
       <AnimatePresence>
