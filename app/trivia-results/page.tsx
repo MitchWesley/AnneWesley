@@ -19,6 +19,7 @@ export default function TriviaResults() {
   const [refreshing, setRefreshing] = useState(false)
   const [debugInfo, setDebugInfo] = useState<any>(null)
   const [apiTestInfo, setApiTestInfo] = useState<any>(null)
+  const [leaderboardRawData, setLeaderboardRawData] = useState<any>(null)
 
   const fetchResults = async (silent = false) => {
     if (!silent) setLoading(true)
@@ -41,8 +42,21 @@ export default function TriviaResults() {
 
       if (response.ok) {
         const data = await response.json()
-        console.log("Received trivia leaderboard data:", data)
-        setSubmissions(data.submissions || [])
+        console.log("=== FULL LEADERBOARD API RESPONSE ===")
+        console.log("Raw response data:", data)
+        console.log("Submissions array:", data.submissions)
+        console.log("Submissions length:", data.submissions?.length)
+        console.log("Debug info from API:", data.debug)
+
+        // Store the raw data for debugging
+        setLeaderboardRawData(data)
+
+        // Set submissions
+        const submissionsArray = data.submissions || []
+        console.log("Setting submissions to:", submissionsArray)
+        setSubmissions(submissionsArray)
+
+        console.log("State should now have:", submissionsArray.length, "submissions")
       } else {
         console.error("Failed to fetch trivia results:", response.status, response.statusText)
       }
@@ -81,15 +95,23 @@ export default function TriviaResults() {
   }
 
   useEffect(() => {
+    console.log("Component mounted, fetching initial results...")
     fetchResults()
 
     // Set up more frequent polling for real-time updates
     const interval = setInterval(() => {
+      console.log("Auto-refresh triggered...")
       fetchResults(true)
     }, 15000) // Poll every 15 seconds
 
     return () => clearInterval(interval)
   }, [])
+
+  // Debug: Log whenever submissions state changes
+  useEffect(() => {
+    console.log("Submissions state changed to:", submissions.length, "items")
+    console.log("Current submissions:", submissions)
+  }, [submissions])
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -206,8 +228,8 @@ export default function TriviaResults() {
           </div>
         </motion.div>
 
-        {/* Debug Info */}
-        {(debugInfo || apiTestInfo) && (
+        {/* Enhanced Debug Info */}
+        {(debugInfo || apiTestInfo || leaderboardRawData) && (
           <motion.div
             className="max-w-4xl mx-auto mb-8 bg-blue-50 border-2 border-blue-200 rounded-2xl p-4"
             initial={{ opacity: 0 }}
@@ -225,7 +247,7 @@ export default function TriviaResults() {
             )}
 
             {debugInfo && (
-              <div className="p-3 bg-blue-100 rounded-lg">
+              <div className="mb-4 p-3 bg-blue-100 rounded-lg">
                 <h4 className="font-semibold text-blue-800">Debug API (/api/debug-trivia):</h4>
                 <p className="text-blue-700">Total: {debugInfo.totalSubmissions}</p>
                 <p className="text-blue-700">All IDs: {debugInfo.debug?.allIdsCount || 0} records</p>
@@ -234,14 +256,33 @@ export default function TriviaResults() {
               </div>
             )}
 
+            {leaderboardRawData && (
+              <div className="mb-4 p-3 bg-yellow-100 rounded-lg">
+                <h4 className="font-semibold text-yellow-800">Leaderboard API Response:</h4>
+                <p className="text-yellow-700">
+                  API returned: {leaderboardRawData.submissions?.length || 0} submissions
+                </p>
+                <p className="text-yellow-700">Debug total count: {leaderboardRawData.debug?.totalCount || "N/A"}</p>
+                <p className="text-yellow-700">
+                  Debug leaderboard count: {leaderboardRawData.debug?.leaderboardCount || "N/A"}
+                </p>
+                <p className="text-yellow-700">Success: {leaderboardRawData.success ? "Yes" : "No"}</p>
+                {leaderboardRawData.submissions && (
+                  <p className="text-yellow-700">
+                    Submission IDs: {leaderboardRawData.submissions.map((s: any) => s.id).join(", ")}
+                  </p>
+                )}
+              </div>
+            )}
+
             <div className="mt-3 p-3 bg-green-100 rounded-lg">
-              <h4 className="font-semibold text-green-800">Current Display:</h4>
-              <p className="text-green-700">Showing: {submissions.length} submissions</p>
+              <h4 className="font-semibold text-green-800">Current Display State:</h4>
+              <p className="text-green-700">React state has: {submissions.length} submissions</p>
+              <p className="text-green-700">Displaying IDs: {submissions.map((s) => s.id).join(", ")}</p>
             </div>
           </motion.div>
         )}
 
-        {/* Rest of the component remains the same... */}
         {/* Leaderboard */}
         {submissions.length === 0 ? (
           <motion.div className="text-center py-16" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
