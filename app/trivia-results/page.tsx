@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Trophy, Medal, Award, ArrowLeft, RefreshCw, Bug } from "lucide-react"
+import { Trophy, Medal, Award, ArrowLeft, RefreshCw } from "lucide-react"
 import Link from "next/link"
 
 interface TriviaSubmission {
@@ -48,9 +48,6 @@ export default function TriviaResults() {
         console.log("Submissions length:", data.submissions?.length)
         console.log("Debug info from API:", data.debug)
 
-        // Store the raw data for debugging
-        setLeaderboardRawData(data)
-
         // Set submissions
         const submissionsArray = data.submissions || []
         console.log("Setting submissions to:", submissionsArray)
@@ -65,32 +62,6 @@ export default function TriviaResults() {
     } finally {
       if (!silent) setLoading(false)
       if (silent) setRefreshing(false)
-    }
-  }
-
-  const fetchDebugInfo = async () => {
-    try {
-      const response = await fetch(`/api/debug-trivia?t=${Date.now()}`)
-      if (response.ok) {
-        const data = await response.json()
-        setDebugInfo(data)
-        console.log("Debug info:", data)
-      }
-    } catch (error) {
-      console.error("Error fetching debug info:", error)
-    }
-  }
-
-  const fetchApiTestInfo = async () => {
-    try {
-      const response = await fetch(`/api/trivia?t=${Date.now()}`)
-      if (response.ok) {
-        const data = await response.json()
-        setApiTestInfo(data)
-        console.log("API test info:", data)
-      }
-    } catch (error) {
-      console.error("Error fetching API test info:", error)
     }
   }
 
@@ -194,94 +165,18 @@ export default function TriviaResults() {
               </p>
             </div>
 
-            <div className="flex gap-2">
-              <motion.button
-                onClick={fetchApiTestInfo}
-                className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-xl flex items-center transition-colors text-sm"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Test API
-              </motion.button>
-
-              <motion.button
-                onClick={fetchDebugInfo}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl flex items-center transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Bug className="w-5 h-5 mr-2" />
-                Debug
-              </motion.button>
-
-              <motion.button
-                onClick={() => fetchResults(true)}
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl flex items-center transition-colors"
-                disabled={refreshing}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <RefreshCw className={`w-5 h-5 mr-2 ${refreshing ? "animate-spin" : ""}`} />
-                {refreshing ? "Refreshing..." : "Refresh"}
-              </motion.button>
-            </div>
+            <motion.button
+              onClick={() => fetchResults(true)}
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl flex items-center transition-colors"
+              disabled={refreshing}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <RefreshCw className={`w-5 h-5 mr-2 ${refreshing ? "animate-spin" : ""}`} />
+              {refreshing ? "Refreshing..." : "Refresh"}
+            </motion.button>
           </div>
         </motion.div>
-
-        {/* Enhanced Debug Info */}
-        {(debugInfo || apiTestInfo || leaderboardRawData) && (
-          <motion.div
-            className="max-w-4xl mx-auto mb-8 bg-blue-50 border-2 border-blue-200 rounded-2xl p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <h3 className="font-bold text-blue-800 mb-2">Debug Information:</h3>
-
-            {apiTestInfo && (
-              <div className="mb-4 p-3 bg-purple-100 rounded-lg">
-                <h4 className="font-semibold text-purple-800">API Test (/api/trivia):</h4>
-                <p className="text-purple-700">Total: {apiTestInfo.totalSubmissions}</p>
-                <p className="text-purple-700">All IDs: {apiTestInfo.allIds?.length || 0} records</p>
-                <p className="text-purple-700">Recent: {apiTestInfo.recentSubmissions?.length || 0} records</p>
-              </div>
-            )}
-
-            {debugInfo && (
-              <div className="mb-4 p-3 bg-blue-100 rounded-lg">
-                <h4 className="font-semibold text-blue-800">Debug API (/api/debug-trivia):</h4>
-                <p className="text-blue-700">Total: {debugInfo.totalSubmissions}</p>
-                <p className="text-blue-700">All IDs: {debugInfo.debug?.allIdsCount || 0} records</p>
-                <p className="text-blue-700">Recent: {debugInfo.debug?.recentCount || 0} records</p>
-                <p className="text-blue-700">Leaderboard: {debugInfo.debug?.leaderboardCount || 0} records</p>
-              </div>
-            )}
-
-            {leaderboardRawData && (
-              <div className="mb-4 p-3 bg-yellow-100 rounded-lg">
-                <h4 className="font-semibold text-yellow-800">Leaderboard API Response:</h4>
-                <p className="text-yellow-700">
-                  API returned: {leaderboardRawData.submissions?.length || 0} submissions
-                </p>
-                <p className="text-yellow-700">Debug total count: {leaderboardRawData.debug?.totalCount || "N/A"}</p>
-                <p className="text-yellow-700">
-                  Debug leaderboard count: {leaderboardRawData.debug?.leaderboardCount || "N/A"}
-                </p>
-                <p className="text-yellow-700">Success: {leaderboardRawData.success ? "Yes" : "No"}</p>
-                {leaderboardRawData.submissions && (
-                  <p className="text-yellow-700">
-                    Submission IDs: {leaderboardRawData.submissions.map((s: any) => s.id).join(", ")}
-                  </p>
-                )}
-              </div>
-            )}
-
-            <div className="mt-3 p-3 bg-green-100 rounded-lg">
-              <h4 className="font-semibold text-green-800">Current Display State:</h4>
-              <p className="text-green-700">React state has: {submissions.length} submissions</p>
-              <p className="text-green-700">Displaying IDs: {submissions.map((s) => s.id).join(", ")}</p>
-            </div>
-          </motion.div>
-        )}
 
         {/* Leaderboard */}
         {submissions.length === 0 ? (
