@@ -18,6 +18,7 @@ export default function TriviaResults() {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [debugInfo, setDebugInfo] = useState<any>(null)
+  const [apiTestInfo, setApiTestInfo] = useState<any>(null)
 
   const fetchResults = async (silent = false) => {
     if (!silent) setLoading(true)
@@ -40,7 +41,7 @@ export default function TriviaResults() {
 
       if (response.ok) {
         const data = await response.json()
-        console.log("Received trivia data:", data.submissions?.length, "submissions")
+        console.log("Received trivia leaderboard data:", data)
         setSubmissions(data.submissions || [])
       } else {
         console.error("Failed to fetch trivia results:", response.status, response.statusText)
@@ -66,13 +67,26 @@ export default function TriviaResults() {
     }
   }
 
+  const fetchApiTestInfo = async () => {
+    try {
+      const response = await fetch(`/api/trivia?t=${Date.now()}`)
+      if (response.ok) {
+        const data = await response.json()
+        setApiTestInfo(data)
+        console.log("API test info:", data)
+      }
+    } catch (error) {
+      console.error("Error fetching API test info:", error)
+    }
+  }
+
   useEffect(() => {
     fetchResults()
 
     // Set up more frequent polling for real-time updates
     const interval = setInterval(() => {
       fetchResults(true)
-    }, 15000) // Poll every 15 seconds instead of 30
+    }, 15000) // Poll every 15 seconds
 
     return () => clearInterval(interval)
   }, [])
@@ -160,6 +174,15 @@ export default function TriviaResults() {
 
             <div className="flex gap-2">
               <motion.button
+                onClick={fetchApiTestInfo}
+                className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-xl flex items-center transition-colors text-sm"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Test API
+              </motion.button>
+
+              <motion.button
                 onClick={fetchDebugInfo}
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl flex items-center transition-colors"
                 whileHover={{ scale: 1.05 }}
@@ -184,19 +207,41 @@ export default function TriviaResults() {
         </motion.div>
 
         {/* Debug Info */}
-        {debugInfo && (
+        {(debugInfo || apiTestInfo) && (
           <motion.div
             className="max-w-4xl mx-auto mb-8 bg-blue-50 border-2 border-blue-200 rounded-2xl p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
             <h3 className="font-bold text-blue-800 mb-2">Debug Information:</h3>
-            <p className="text-blue-700">Total in Database: {debugInfo.totalCount}</p>
-            <p className="text-blue-700">Fetched at: {debugInfo.timestamp}</p>
-            <p className="text-blue-700">Showing: {submissions.length} submissions</p>
+
+            {apiTestInfo && (
+              <div className="mb-4 p-3 bg-purple-100 rounded-lg">
+                <h4 className="font-semibold text-purple-800">API Test (/api/trivia):</h4>
+                <p className="text-purple-700">Total: {apiTestInfo.totalSubmissions}</p>
+                <p className="text-purple-700">All IDs: {apiTestInfo.allIds?.length || 0} records</p>
+                <p className="text-purple-700">Recent: {apiTestInfo.recentSubmissions?.length || 0} records</p>
+              </div>
+            )}
+
+            {debugInfo && (
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <h4 className="font-semibold text-blue-800">Debug API (/api/debug-trivia):</h4>
+                <p className="text-blue-700">Total: {debugInfo.totalSubmissions}</p>
+                <p className="text-blue-700">All IDs: {debugInfo.debug?.allIdsCount || 0} records</p>
+                <p className="text-blue-700">Recent: {debugInfo.debug?.recentCount || 0} records</p>
+                <p className="text-blue-700">Leaderboard: {debugInfo.debug?.leaderboardCount || 0} records</p>
+              </div>
+            )}
+
+            <div className="mt-3 p-3 bg-green-100 rounded-lg">
+              <h4 className="font-semibold text-green-800">Current Display:</h4>
+              <p className="text-green-700">Showing: {submissions.length} submissions</p>
+            </div>
           </motion.div>
         )}
 
+        {/* Rest of the component remains the same... */}
         {/* Leaderboard */}
         {submissions.length === 0 ? (
           <motion.div className="text-center py-16" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -239,7 +284,9 @@ export default function TriviaResults() {
                   <div className="flex-1">
                     <h3 className="text-xl font-bold text-gray-800 mb-1">{submission.name}</h3>
                     <div className="flex items-center text-gray-600 text-sm">
-                      <span>Submitted {formatDate(submission.submitted_at)}</span>
+                      <span>
+                        ID: {submission.id} • Submitted {formatDate(submission.submitted_at)}
+                      </span>
                     </div>
                   </div>
 
@@ -279,14 +326,16 @@ export default function TriviaResults() {
           >
             <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 text-center shadow-xl border-2 border-green-100">
               <div className="text-3xl font-bold text-green-600 mb-2">
-                {Math.max(...submissions.map((s) => s.score))}
+                {submissions.length > 0 ? Math.max(...submissions.map((s) => s.score)) : 0}
               </div>
               <div className="text-gray-600">Highest Score</div>
             </div>
 
             <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 text-center shadow-xl border-2 border-green-100">
               <div className="text-3xl font-bold text-green-600 mb-2">
-                {Math.round(submissions.reduce((sum, s) => sum + s.score, 0) / submissions.length)}
+                {submissions.length > 0
+                  ? Math.round(submissions.reduce((sum, s) => sum + s.score, 0) / submissions.length)
+                  : 0}
               </div>
               <div className="text-gray-600">Average Score</div>
             </div>

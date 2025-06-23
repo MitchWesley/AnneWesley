@@ -10,43 +10,57 @@ export async function GET(request: Request) {
     const timestamp = url.searchParams.get("t") || Date.now()
     console.log(`Cache-busting timestamp: ${timestamp}`)
 
-    // Try multiple approaches to get the data
+    // Use the EXACT same connection pattern as the working /api/trivia GET endpoint
     const sql = getNeonClient()
 
-    // First, check the count
-    const countResult = await sql`SELECT COUNT(*) as total FROM trivia_submissions`
-    console.log("Total count in leaderboard API:", countResult[0].total)
+    // First, do the exact same queries that work in /api/trivia GET
+    console.log("Testing with same pattern as working /api/trivia...")
 
-    // Get submissions with explicit ordering
+    // Test basic connection (same as working endpoint)
+    const connectionTest = await sql`SELECT NOW() as current_time`
+    console.log("Connection test successful:", connectionTest)
+
+    // Count query (same as working endpoint)
+    const triviaCount = await sql`SELECT COUNT(*) as total FROM trivia_submissions`
+    console.log("Total count:", triviaCount[0].total)
+
+    // Get all IDs (same as working endpoint)
+    const allIds = await sql`SELECT id, name, submitted_at FROM trivia_submissions ORDER BY id`
+    console.log("All IDs found:", allIds.length)
+
+    // Get recent submissions (same as working endpoint)
+    const recentSubmissions = await sql`
+      SELECT * FROM trivia_submissions 
+      ORDER BY submitted_at DESC 
+      LIMIT 10
+    `
+    console.log("Recent submissions found:", recentSubmissions.length)
+
+    // Now try the leaderboard query
     const submissions = await sql`
       SELECT id, name, score, total_questions, submitted_at
       FROM trivia_submissions
       ORDER BY score DESC, submitted_at ASC
     `
 
-    console.log("Leaderboard submissions found:", submissions.length)
+    console.log("Leaderboard query results:", submissions.length)
     console.log(
-      "Submission IDs:",
+      "Submission IDs from leaderboard query:",
       submissions.map((s) => s.id),
     )
-
-    // Also try without ordering to see if that's the issue
-    const allSubmissions = await sql`
-      SELECT id, name, score, total_questions, submitted_at
-      FROM trivia_submissions
-    `
-
-    console.log("All submissions (no ordering):", allSubmissions.length)
 
     // Add cache-busting headers
     const response = NextResponse.json({
       success: true,
       submissions,
-      totalCount: countResult[0].total,
-      allSubmissionsCount: allSubmissions.length,
       debug: {
         timestamp: new Date().toISOString(),
         cacheBuster: timestamp,
+        totalCount: triviaCount[0].total,
+        allIdsCount: allIds.length,
+        recentCount: recentSubmissions.length,
+        leaderboardCount: submissions.length,
+        connectionTime: connectionTest[0].current_time,
       },
     })
 

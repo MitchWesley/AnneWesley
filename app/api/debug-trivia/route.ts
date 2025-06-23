@@ -5,59 +5,50 @@ export async function GET() {
   try {
     console.log("=== DEBUG TRIVIA API CALLED ===")
 
-    // Try multiple connection attempts to see if we get different results
-    const sql1 = getNeonClient()
-    const sql2 = getNeonClient()
+    // Use the EXACT same pattern as the working /api/trivia GET endpoint
+    const sql = getNeonClient() // Single connection like the working endpoint
 
-    console.log("Testing with first connection...")
-    const count1 = await sql1`SELECT COUNT(*) as total FROM trivia_submissions`
-    console.log("First connection count:", count1[0].total)
+    // Test basic connection first
+    const connectionTest = await sql`SELECT NOW() as current_time`
+    console.log("Database connection test successful:", connectionTest)
 
-    console.log("Testing with second connection...")
-    const count2 = await sql2`SELECT COUNT(*) as total FROM trivia_submissions`
-    console.log("Second connection count:", count2[0].total)
+    // Use the EXACT same query pattern as /api/trivia GET
+    const triviaCount = await sql`SELECT COUNT(*) as total FROM trivia_submissions`
+    console.log("Trivia table count:", triviaCount[0].total)
 
-    // Get all submissions with more detailed info
-    const allSubmissions = await sql1`
-      SELECT id, name, score, total_questions, submitted_at, 
-             EXTRACT(EPOCH FROM submitted_at) as timestamp,
-             answers
-      FROM trivia_submissions 
-      ORDER BY id ASC
+    // Get all IDs exactly like /api/trivia does
+    const allIds = await sql`SELECT id, name, submitted_at FROM trivia_submissions ORDER BY id`
+    console.log("All submission IDs:", allIds.length, "records")
+
+    // Get recent submissions exactly like /api/trivia does
+    const recentSubmissions = await sql`
+      SELECT * FROM trivia_submissions 
+      ORDER BY submitted_at DESC 
+      LIMIT 10
     `
+    console.log("Recent trivia submissions:", recentSubmissions.length)
 
-    console.log(
-      "All submissions by ID:",
-      allSubmissions.map((s) => ({ id: s.id, name: s.name, submitted_at: s.submitted_at })),
-    )
-
-    // Try a different query approach
-    const rawQuery = await sql1`
-      SELECT * FROM trivia_submissions ORDER BY submitted_at DESC
+    // Now get the full data for leaderboard (same as leaderboard API should do)
+    const submissions = await sql`
+      SELECT id, name, score, total_questions, submitted_at
+      FROM trivia_submissions
+      ORDER BY score DESC, submitted_at ASC
     `
-
-    console.log("Raw query results:", rawQuery.length, "records")
-
-    // Check for any potential issues with the table
-    const tableInfo = await sql1`
-      SELECT column_name, data_type 
-      FROM information_schema.columns 
-      WHERE table_name = 'trivia_submissions'
-      ORDER BY ordinal_position
-    `
-
-    console.log("Table structure:", tableInfo)
+    console.log("Leaderboard-style query results:", submissions.length)
 
     return NextResponse.json({
       success: true,
-      connection1Count: count1[0].total,
-      connection2Count: count2[0].total,
-      totalSubmissions: allSubmissions.length,
-      rawQueryCount: rawQuery.length,
-      submissions: allSubmissions,
-      rawSubmissions: rawQuery,
-      tableStructure: tableInfo,
-      timestamp: new Date().toISOString(),
+      message: "Debug trivia API - using same pattern as working /api/trivia",
+      timestamp: connectionTest[0].current_time,
+      totalSubmissions: triviaCount[0].total,
+      allIds: allIds,
+      recentSubmissions: recentSubmissions,
+      leaderboardSubmissions: submissions,
+      debug: {
+        allIdsCount: allIds.length,
+        recentCount: recentSubmissions.length,
+        leaderboardCount: submissions.length,
+      },
     })
   } catch (error) {
     console.error("Debug trivia error:", error)
