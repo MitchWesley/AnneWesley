@@ -24,28 +24,95 @@ export async function GET(request: Request) {
     const triviaCount = await sql`SELECT COUNT(*) as total FROM trivia_submissions`
     console.log("Total count:", triviaCount[0].total)
 
-    // Get all IDs (same as working endpoint)
+    // Get all IDs (same as working endpoint) - THIS WORKS AND SHOWS 6
     const allIds = await sql`SELECT id, name, submitted_at FROM trivia_submissions ORDER BY id`
     console.log("All IDs found:", allIds.length)
+    console.log(
+      "All ID details:",
+      allIds.map((s) => ({ id: s.id, name: s.name })),
+    )
 
-    // Get recent submissions (same as working endpoint)
-    const recentSubmissions = await sql`
-      SELECT * FROM trivia_submissions 
-      ORDER BY submitted_at DESC 
-      LIMIT 10
+    // Let's try different approaches to the leaderboard query
+    console.log("=== TESTING DIFFERENT LEADERBOARD QUERIES ===")
+
+    // Try 1: Simple query without ORDER BY
+    const simpleQuery = await sql`
+      SELECT id, name, score, total_questions, submitted_at
+      FROM trivia_submissions
     `
-    console.log("Recent submissions found:", recentSubmissions.length)
+    console.log("Simple query (no ORDER BY):", simpleQuery.length, "results")
+    console.log(
+      "Simple query IDs:",
+      simpleQuery.map((s) => s.id),
+    )
 
-    // Now try the leaderboard query
-    const submissions = await sql`
+    // Try 2: Query with just score ordering
+    const scoreOnlyOrder = await sql`
+      SELECT id, name, score, total_questions, submitted_at
+      FROM trivia_submissions
+      ORDER BY score DESC
+    `
+    console.log("Score-only ORDER BY:", scoreOnlyOrder.length, "results")
+    console.log(
+      "Score-only IDs:",
+      scoreOnlyOrder.map((s) => s.id),
+    )
+
+    // Try 3: Query with just date ordering
+    const dateOnlyOrder = await sql`
+      SELECT id, name, score, total_questions, submitted_at
+      FROM trivia_submissions
+      ORDER BY submitted_at ASC
+    `
+    console.log("Date-only ORDER BY:", dateOnlyOrder.length, "results")
+    console.log(
+      "Date-only IDs:",
+      dateOnlyOrder.map((s) => s.id),
+    )
+
+    // Try 4: Original problematic query
+    const originalQuery = await sql`
       SELECT id, name, score, total_questions, submitted_at
       FROM trivia_submissions
       ORDER BY score DESC, submitted_at ASC
     `
-
-    console.log("Leaderboard query results:", submissions.length)
+    console.log("Original query (score DESC, date ASC):", originalQuery.length, "results")
     console.log(
-      "Submission IDs from leaderboard query:",
+      "Original query IDs:",
+      originalQuery.map((s) => s.id),
+    )
+
+    // Try 5: Check for NULL values that might cause issues
+    const nullCheck = await sql`
+      SELECT id, name, score, total_questions, submitted_at,
+             CASE WHEN score IS NULL THEN 'NULL_SCORE' ELSE 'HAS_SCORE' END as score_status,
+             CASE WHEN submitted_at IS NULL THEN 'NULL_DATE' ELSE 'HAS_DATE' END as date_status
+      FROM trivia_submissions
+      ORDER BY id
+    `
+    console.log("NULL check results:", nullCheck.length)
+    console.log(
+      "NULL check details:",
+      nullCheck.map((s) => ({
+        id: s.id,
+        name: s.name,
+        score_status: s.score_status,
+        date_status: s.date_status,
+      })),
+    )
+
+    // Use the simple query (no ORDER BY) as our result since it works
+    const submissions = simpleQuery.sort((a, b) => {
+      // Sort by score descending, then by date ascending
+      if (b.score !== a.score) {
+        return b.score - a.score
+      }
+      return new Date(a.submitted_at).getTime() - new Date(b.submitted_at).getTime()
+    })
+
+    console.log("Final sorted submissions:", submissions.length)
+    console.log(
+      "Final submission IDs:",
       submissions.map((s) => s.id),
     )
 
@@ -58,8 +125,11 @@ export async function GET(request: Request) {
         cacheBuster: timestamp,
         totalCount: triviaCount[0].total,
         allIdsCount: allIds.length,
-        recentCount: recentSubmissions.length,
-        leaderboardCount: submissions.length,
+        simpleQueryCount: simpleQuery.length,
+        scoreOnlyCount: scoreOnlyOrder.length,
+        dateOnlyCount: dateOnlyOrder.length,
+        originalQueryCount: originalQuery.length,
+        finalCount: submissions.length,
         connectionTime: connectionTest[0].current_time,
       },
     })
