@@ -677,7 +677,7 @@ export default function AnneBirthdayPage() {
                 </motion.div>
 
                 <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Photos (Optional - up to 5)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Photos (Optional - up to 5. Must be less than 6MB total)</label>
                   <div className="border-2 border-dashed border-green-300 rounded-xl p-6 text-center bg-green-50/50 hover:bg-green-50 transition-colors">
                     <input
                       type="file"
