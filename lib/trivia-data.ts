@@ -10,77 +10,88 @@ export interface TriviaQuestion {
 export const triviaQuestions: TriviaQuestion[] = [
   {
     id: 1,
-    question: "What is Anne's favorite color?",
-    type: "multiple-choice",
-    options: ["Blue", "Green", "Purple", "Red"],
-    correctAnswer: 1, // Green (index 1)
-    points: 1,
+    question: "What is Anne's favorite color? (Don't use any upper case)",
+    type: "text",
+    correctAnswer: "green",
+    points: 3,
   },
   {
     id: 2,
-    question: "In what year was Anne born?",
-    type: "text",
-    correctAnswer: "1964", // Accept exact year
+    question: "Who is Anne's favorite musician/music group?",
+    type: "multiple-choice",
+    options: ["Taylor Swift", "Rascal Flatts", "The Beatles", "Carrie Underwood"],
+    correctAnswer: 1, // Rascal Flatts
     points: 2,
   },
   {
     id: 3,
-    question: "What is Anne's favorite hobby?",
+    question: "What animal accompanied Anne to classes in college?",
     type: "multiple-choice",
-    options: ["Reading", "Gardening", "Cooking", "Painting"],
-    correctAnswer: 1, // Gardening (example)
-    points: 1,
+    options: ["A cat", "A duck", "A hamster", "A bird"],
+    correctAnswer: 1, // A duck
+    points: 2,
   },
   {
     id: 4,
-    question: "What city was Anne born in?",
+    question: "How many siblings does Anne have?",
     type: "text",
-    correctAnswer: "Springfield", // Example city
+    correctAnswer: "6",
     points: 2,
   },
   {
     id: 5,
-    question: "How many children does Anne have?",
+    question: "What business did Anne make up when playing pretend as a kid?",
     type: "multiple-choice",
-    options: ["1", "2", "3", "4"],
-    correctAnswer: 2, // 3 children (example)
-    points: 1,
-  },
-  {
-    id: 6,
-    question: "What is Anne's maiden name?",
-    type: "text",
-    correctAnswer: "Johnson", // Example maiden name
+    options: ["A restaurant", "A trucking company", "A flower shop", "A bakery"],
+    correctAnswer: 1, // A trucking company
     points: 3,
   },
   {
-    id: 7,
-    question: "What is Anne's favorite type of music?",
+    id: 6,
+    question: "What would Anne do on a sunny afternoon?",
     type: "multiple-choice",
-    options: ["Classical", "Rock", "Country", "Jazz"],
-    correctAnswer: 0, // Classical (example)
-    points: 1,
+    options: ["Read a book", "Get ice cream", "Go for a walk", "Take a nap"],
+    correctAnswer: 1, // Get ice cream
+    points: 2,
+  },
+  {
+    id: 7,
+    question: "What is Anne's favorite sweet treat?",
+    type: "multiple-choice",
+    options: ["Milk chocolate", "Dark chocolate", "White chocolate", "Candy bars"],
+    correctAnswer: 1, // Dark chocolate
+    points: 2,
   },
   {
     id: 8,
-    question: "What was Anne's first job?",
-    type: "text",
-    correctAnswer: "Teacher", // Example job
+    question: "What does Anne NOT like in her salad?",
+    type: "multiple-choice",
+    options: ["Tomatoes", "Pepper", "Onions", "Croutons"],
+    correctAnswer: 1, // Pepper
     points: 2,
   },
   {
     id: 9,
-    question: "What is Anne's favorite season?",
+    question: "Where does Anne work?",
     type: "multiple-choice",
-    options: ["Spring", "Summer", "Fall", "Winter"],
-    correctAnswer: 2, // Fall (example)
+    options: ["The Smith Center", "The Watson Institute", "The Johnson Foundation", "The Miller Group"],
+    correctAnswer: 1, // The Watson Institute
     points: 1,
   },
   {
     id: 10,
-    question: "What year did Anne get married?",
-    type: "text",
-    correctAnswer: "1985", // Example year
+    question: "What nickname did Anne have for her two sons when they were little?",
+    type: "multiple-choice",
+    options: ["Little One and Big One", "Baby A and Baby B", "Sweetie and Honey", "Buddy and Pal"],
+    correctAnswer: 1, // Baby A and Baby B
+    points: 2,
+  },
+  {
+    id: 11,
+    question: "What is Anne's least favorite form of transportation?",
+    type: "multiple-choice",
+    options: ["Cars", "Planes", "Trains", "Boats"],
+    correctAnswer: 1, // Planes
     points: 2,
   },
 ]
