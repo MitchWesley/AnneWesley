@@ -111,6 +111,24 @@ export default function TriviaPage() {
               </Link>
             </motion.div>
           </motion.div>
+
+          {/* Footer for results page */}
+          <motion.footer
+            className="max-w-2xl mx-auto mt-8 text-center pb-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+          >
+            <div className="text-gray-600">
+              Created by{" "}
+              <span
+                className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"
+                style={{ fontFamily: "'Dancing Script', 'Brush Script MT', cursive" }}
+              >
+                Teressa Wesley
+              </span>
+            </div>
+          </motion.footer>
         </div>
       </div>
     )
@@ -251,6 +269,24 @@ export default function TriviaPage() {
             Submit Trivia ({answeredCount}/{triviaQuestions.length})
           </motion.button>
         </motion.div>
+
+        {/* Footer for main trivia page */}
+        <motion.footer
+          className="max-w-2xl mx-auto mt-16 text-center pb-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+        >
+          <div className="text-gray-600">
+            Created by{" "}
+            <span
+              className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"
+              style={{ fontFamily: "'Dancing Script', 'Brush Script MT', cursive" }}
+            >
+              Teressa Wesley
+            </span>
+          </div>
+        </motion.footer>
       </div>
 
       {/* Name Form Modal */}
