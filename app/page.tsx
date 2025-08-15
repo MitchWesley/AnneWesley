@@ -592,7 +592,7 @@ export default function AnneBirthdayPage() {
           </Link>
         </motion.div>
 
-        { Trivia Button
+        {/* Trivia Button*/}
         <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.7 }}>
           <Link href="/trivia">
             <motion.div
@@ -603,7 +603,7 @@ export default function AnneBirthdayPage() {
               <Brain className="w-6 h-6" />
             </motion.div>
           </Link>
-        </motion.div> }
+        </motion.div> 
       </div>
 
       {/* Form Modal with Enhanced Styling */}
